@@ -8,7 +8,7 @@ const {
   deleteThought,
   addReaction,
   removeReaction,
-} = require("../../controllers/userController");
+} = require("../../controllers/thoughtController");
 // getThoughts, getSingleThought, createThought, updateThought, deleteThought, addReaction, removeReaction
 
 // api/thoughts CRUD operations for all thoughts
