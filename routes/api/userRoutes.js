@@ -1,6 +1,6 @@
 const router = require('express').Router();
 // require controller functionality
-
+// getUsers, getSingleUser, createUser, updateUser, deleteUser
 
 // api/users CRUD operations for all users
 // router.route('/')

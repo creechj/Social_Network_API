@@ -1,6 +1,6 @@
 const router = require('express').Router();
 // require controller functionality
-
+// getThoughts, getSingleThought, createThought, updateThought, deleteThought, addReaction, removeReaction
 
 // api/thoughts CRUD operations for all thoughts
 // router.route('/')
