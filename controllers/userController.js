@@ -1,4 +1,4 @@
-const { isObjectIdOrHexString } = require("mongoose");
+const { ObjectId } = require("mongoose");
 const User = require("../models/User");
 const Thought = require("../models/Thought");
 
@@ -16,7 +16,8 @@ module.exports = {
   async getSingleUser(req, res) {
     try {
       const user = await User.findOne({ _id: req.params.userId })
-        .populate('thoughts');
+        .populate({ path: 'thoughts', model: Thought })
+        .populate({ path: 'friends', model: User });
 
       if (!user) {
         return res.status(404).json({ message: 'No user with that ID' });
