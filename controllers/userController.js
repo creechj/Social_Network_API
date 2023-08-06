@@ -1,3 +1,4 @@
+const { isObjectIdOrHexString } = require("mongoose");
 const User = require("../models/User");
 
 module.exports = {
@@ -50,51 +51,62 @@ module.exports = {
   // deleteUser - deletes user from other users' friends array
   async deleteUser(req, res) {
     try {
-        const user = await User.findOneAndDelete(
-            { _id: req.params.userId },
-            // { $pull: { friends: { _Id: req.params.friendId } } },
-        );
-  
-        if (!user) {
-          return res.status(404).json({ message: 'No user with that ID' });
-        }
-  
-        // await friends.deleteMany({ _id: { $in: user.friends } });
-        res.json({ message: 'User deleted' })
-      } catch (err) {
-        res.status(500).json(err);
+      // const user = await User.findOneAndDelete(
+      //   { _id: req.params.userId },
+      //   { new: true }
+      // );
+
+      // if (!user) {
+      //   return res.status(404).json({ message: "No user with that ID" });
+      // }
+
+      const friend = await User.updateMany(
+        { $pull: { friends: req.params.userId } },
+        { runValidators: true, new: true }
+      )
+      // await Student.deleteMany({ _id: { $in: course.students } });
+      if (!friend) {
+        return res.status(404).json({
+          message: 'User deleted, not on any friends lists',
+        });
       }
+  
+      res.json({ message: "User deleted" });
+    } catch (err) {
+      res.status(500).json(err);
+    }
   },
   // add friend
   async addFriend(req, res) {
     try {
-        const user = User.findOneAndUpdate(
-          { _id: req.params.userId },
-          { $addToSet: { friends: req.body } },
-          { runValidators: true, new: true }
-        );
-        if (!user) {
-          return res.status(404).json({ message: "No user found" });
-        }
-        res.json(user);
-      } catch (err) {
-        res.status(500).json(err);
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $push: { friends: req.params.friendId }},
+        { new: true },
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "No user found" });
       }
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
   },
   // remove friend
   async removeFriend(req, res) {
     try {
-        const user = User.findOneAndUpdate(
-          { _id: req.params.userId },
-          { $pull: { friends: { _Id: req.params.friendId } } },
-          { runValidators: true, new: true }
-        );
-        if (!user) {
-          return res.status(404).json({ message: "No user found" });
-        }
-        res.json(user);
-      } catch (err) {
-        res.status(500).json(err);
+      const user = await User.findOneAndUpdate(
+        { _id: req.params.userId },
+        { $pull: { friends: req.params.friendId } },
+        { runValidators: true, new: true }
+      );
+      if (!user) {
+        return res.status(404).json({ message: "No user found" });
       }
-  }
+      res.json(user);
+    } catch (err) {
+      res.status(500).json(err);
+    }
+  },
 };

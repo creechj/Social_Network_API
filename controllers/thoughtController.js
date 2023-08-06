@@ -27,7 +27,7 @@ module.exports = {
   // createThought - adds thought to user's thoughts array
   async createThought(req, res) {
     try {
-      const newThought = Thought.create(req.body);
+      const newThought = await Thought.create(req.body);
       res.json(newThought);
     } catch (err) {
       res.status(500).json(err);
@@ -52,9 +52,12 @@ module.exports = {
   // deleteThought - deletes thought from user's thoughts array
   async deleteThought(req, res) {
     try {
-      const thought = await Thought.findOneAndDelete({
-        _id: req.params.thoughtId,
-      });
+      const thought = await Thought.findOneAndDelete(
+        {
+          _id: req.params.thoughtId,
+        },
+        { new: true }
+      );
 
       if (!thought) {
         return res.status(404).json({ message: "No thought with that ID" });
@@ -67,9 +70,11 @@ module.exports = {
       );
 
       if (!user) {
-        return res.status(404).json({ message: "Thought deleted; No user found" });
+        return res
+          .status(404)
+          .json({ message: "Thought deleted; No user found" });
       }
-      
+
       res.json({ message: "Thought deleted" });
     } catch (err) {
       res.status(500).json(err);
@@ -85,9 +90,7 @@ module.exports = {
       );
 
       if (!thought) {
-        return res
-          .status(404)
-          .json({ message: "No thought with this id!" });
+        return res.status(404).json({ message: "No thought with this id!" });
       }
 
       res.json(thought);
@@ -105,7 +108,7 @@ module.exports = {
       );
 
       if (!thought) {
-        return res.status(404).json({ message: 'No thought with this id!' });
+        return res.status(404).json({ message: "No thought with this id!" });
       }
 
       res.json(thought);
