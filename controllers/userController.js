@@ -1,11 +1,12 @@
 const { isObjectIdOrHexString } = require("mongoose");
 const User = require("../models/User");
+const Thought = require("../models/Thought");
 
 module.exports = {
-  // getUsers
+  // getUsers X
   async getUsers(req, res) {
     try {
-      const users = await User.find();
+      const users = await User.find({});
       res.json(users);
     } catch (err) {
       res.status(500).json(err);
@@ -14,25 +15,28 @@ module.exports = {
   // getSingleUser
   async getSingleUser(req, res) {
     try {
-      const user = await User.findOne({ _id: req.params.userId });
+      const user = await User.findOne({ _id: req.params.userId })
+        .populate('thoughts');
+
       if (!user) {
-        return res.status(404).json({ message: "No user found" });
+        return res.status(404).json({ message: 'No user with that ID' });
       }
+
       res.json(user);
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // createUser
+  // createUser X
   async createUser(req, res) {
     try {
-      const newUser = User.create(req.body);
+      const newUser = await User.create(req.body);
       res.json(newUser);
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // updateUser
+  // updateUser X
   async updateUser(req, res) {
     try {
       const user = await User.findOneAndUpdate(
@@ -48,35 +52,31 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  // deleteUser - deletes user from other users' friends array
+  // deleteUser - TODO: deletes user from other users' friends array
   async deleteUser(req, res) {
     try {
-      // const user = await User.findOneAndDelete(
-      //   { _id: req.params.userId },
+      const user = await User.findOneAndDelete(
+        { _id: req.params.userId },
+        { new: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "No user with that ID" });
+      }
+      const thoughts = await Thought.deleteMany(
+        { username: user.username }
+      )
+      // const friend = await User.updateMany(
+      //   { $pull: { friends: req.params.userId } },
       //   { new: true }
       // );
-
-      // if (!user) {
-      //   return res.status(404).json({ message: "No user with that ID" });
-      // }
-
-      const friend = await User.updateMany(
-        { $pull: { friends: req.params.userId } },
-        { runValidators: true, new: true }
-      )
-      // await Student.deleteMany({ _id: { $in: course.students } });
-      if (!friend) {
-        return res.status(404).json({
-          message: 'User deleted, not on any friends lists',
-        });
-      }
   
-      res.json({ message: "User deleted" });
+      res.json({ message: "User deleted and thoughts deleted" });
     } catch (err) {
       res.status(500).json(err);
     }
   },
-  // add friend
+  // add friend X
   async addFriend(req, res) {
     try {
       const user = await User.findOneAndUpdate(
@@ -93,7 +93,7 @@ module.exports = {
       res.status(500).json(err);
     }
   },
-  // remove friend
+  // remove friend X
   async removeFriend(req, res) {
     try {
       const user = await User.findOneAndUpdate(

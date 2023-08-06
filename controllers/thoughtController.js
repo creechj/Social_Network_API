@@ -28,7 +28,12 @@ module.exports = {
   async createThought(req, res) {
     try {
       const newThought = await Thought.create(req.body);
-      res.json(newThought);
+      const user = await User.findOneAndUpdate(
+        { username: req.body.username },
+        { $addToSet: { 'thoughts': newThought }},
+        { new: true }
+      );
+      res.json(user);
     } catch (err) {
       res.status(500).json(err);
     }
@@ -64,7 +69,7 @@ module.exports = {
       }
 
       const user = await User.findOneAndUpdate(
-        { thoughts: req.params.thoughtId },
+        { username: thought.username },
         { $pull: { thoughts: req.params.thoughtId } },
         { new: true }
       );
@@ -75,7 +80,7 @@ module.exports = {
           .json({ message: "Thought deleted; No user found" });
       }
 
-      res.json({ message: "Thought deleted" });
+      res.json(user);
     } catch (err) {
       res.status(500).json(err);
     }
