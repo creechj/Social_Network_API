@@ -33,7 +33,7 @@ module.exports = {
         { $addToSet: { 'thoughts': newThought }},
         { new: true }
       );
-      res.json(user);
+      res.json(newThought);
     } catch (err) {
       res.status(500).json(err);
     }
@@ -80,7 +80,7 @@ module.exports = {
           .json({ message: "Thought deleted; No user found" });
       }
 
-      res.json(user);
+      res.json({ message: "Thought deleted and removed from user's thoughts"});
     } catch (err) {
       res.status(500).json(err);
     }

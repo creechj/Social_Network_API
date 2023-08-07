@@ -66,11 +66,6 @@ module.exports = {
       const thoughts = await Thought.deleteMany(
         { username: user.username }
       );
-      const comment = await Thought.updateMany(
-        { reactions: { username: user.username }},
-        { $pull: { reactions: { username: user.username }}},
-        { new: true }
-      );
       const friend = await User.updateMany(
         { friends: req.params.userId },
         { $pull: { friends: req.params.userId  } },
@@ -80,7 +75,7 @@ module.exports = {
       if (!friend) {
         return res.status(404).json({ message: 'User deleted. No friends lists updated.'});
       }
-      res.json({ message: "User deleted and thoughts deleted." });
+      res.json({ message: "User and thoughts deleted." });
     } catch (err) {
       res.status(500).json(err);
     }
