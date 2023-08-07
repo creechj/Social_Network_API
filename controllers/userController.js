@@ -1,6 +1,5 @@
 const { ObjectId } = require("mongoose");
-const User = require("../models/User");
-const Thought = require("../models/Thought");
+const { User, Thought } = require("../models");
 
 module.exports = {
   // getUsers X
@@ -17,7 +16,7 @@ module.exports = {
     try {
       const user = await User.findOne({ _id: req.params.userId })
         .populate({ path: 'thoughts', model: Thought })
-        .populate({ path: 'friends', model: User });
+        .populate({ path: 'friends', populate: 'friends'  });
 
       if (!user) {
         return res.status(404).json({ message: 'No user with that ID' });
@@ -66,7 +65,12 @@ module.exports = {
       }
       const thoughts = await Thought.deleteMany(
         { username: user.username }
-      )
+      );
+      const comment = await Thought.updateMany(
+        { reactions: { username: user.username }},
+        { $pull: { reactions: { username: user.username }}},
+        { new: true }
+      );
       const friend = await User.updateMany(
         { friends: req.params.userId },
         { $pull: { friends: req.params.userId  } },
